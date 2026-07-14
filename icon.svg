@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Birthday cake">
+  <rect width="192" height="192" rx="42" fill="#fff3f0"/>
+  <circle cx="48" cy="46" r="18" fill="#ffc2d1"/>
+  <circle cx="146" cy="38" r="12" fill="#ffd6e0"/>
+  <text x="96" y="128" text-anchor="middle" font-size="104">🎂</text>
+</svg>

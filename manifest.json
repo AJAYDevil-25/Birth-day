@@ -1,0 +1,19 @@
+{
+  "name": "Premium Birthday Surprise",
+  "short_name": "Birthday",
+  "description": "An interactive birthday experience with memories, music, wishes, and surprises.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff3f0",
+  "theme_color": "#e84c88",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#E84C88">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<meta property="og:title" content="Happy Birthday! 🎂✨">
+<meta property="og:description" content="A special interactive surprise website just for you.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&auto=format&fit=crop&q=80">
+<meta property="og:type" content="website">
+<title>Happy Birthday</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%8E%82%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="">
+
+<!-- Fullscreen Gift Wrap Intro Overlay (shown only for shared bypass links) -->
+<div id="giftBoxOverlay" style="display: none;">
+  <div class="gift-box-wrap" id="giftBoxContainer">
+    <div class="gift-lid"></div>
+    <div class="gift-box-body"></div>
+    <div class="gift-ribbon-vertical"></div>
+    <div class="gift-ribbon-horizontal"></div>
+    <div class="gift-bow"></div>
+  </div>
+  <div class="gift-instruction">Tap to open your birthday surprise! 🎁</div>
+</div>
+
+<div class="stars-bg" id="starsBg"></div>
+<canvas id="confetti-canvas"></canvas>
+<div id="revealFlash"></div>
+
+<button class="float-btn" id="themeToggleBtn" title="Change page theme" aria-label="Switch page theme">🌸</button>
+
+<div class="music-player-wrap" id="musicPlayer" style="display:none;">
+  <button class="music-disc-btn" id="musicToggleDisc" title="Music Player" aria-label="Toggle music player">💿</button>
+  <div class="player-panel" id="playerPanel">
+    <div class="track-info">
+      <span class="track-title" id="playerTitle">Surprise Song</span>
+      <div class="visualizer-container">
+        <canvas id="visualizerCanvas" width="80" height="14"></canvas>
+      </div>
+    </div>
+    <div class="player-controls">
+      <button id="playerPlayBtn" aria-label="Play">▶</button>
+      <input type="range" id="playerVolume" min="0" max="1" step="0.05" value="0.5" aria-label="Volume">
+    </div>
+  </div>
+</div>
+
+<button class="float-btn" id="shareBtn" title="Share this surprise" aria-label="Share this birthday surprise">↗</button>
+<button class="float-btn" id="downloadBtn" title="Save this moment as an image" aria-label="Download this page as an image">📸</button>
+<audio id="bgMusic" loop></audio>
+
+<div id="setupOverlay">
+  <div class="setup-wrapper">
+    <!-- Desktop Live Preview Panel -->
+    <div class="setup-preview-panel">
+      <div class="setup-preview-label">✨ Live Preview</div>
+      <div class="preview-phone">
+        <div class="preview-screen" id="previewScreen">
+          <div class="preview-header" style="display:flex; align-items:center; justify-content:center; gap:6px;">
+            <span style="width:7px; height:7px; border-radius:50%; background:#22ff7a; box-shadow:0 0 6px #22ff7a; animation: pulseInstruction 1.4s infinite ease-in-out; display:inline-block;"></span>
+            LIVE
+          </div>
+          <div class="preview-body">
+            <div class="preview-hero">
+              <div class="preview-photo-frame" id="previewPhotoFrame">🎂</div>
+              <h2 id="previewName">You</h2>
+              <p id="previewTagline">Turning age today. Every year with you is a story worth telling.</p>
+              <div class="preview-relation-badge" id="previewBadge">💝 Best Friend</div>
+            </div>
+            
+            <div class="preview-mock-widgets">
+              <div class="mock-widget">⏳ Countdown Widget</div>
+              <div class="mock-widget">🎵 Vinyl Player & Song</div>
+              <div class="mock-widget">✉️ Interactive Letter</div>
+              <div class="mock-widget">🎁 Scratch Gift Card</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wizard Setup Card -->
+    <div class="setup-card">
+    <div class="wizard-progress">
+      <span class="dot active" data-step="1"></span>
+      <span class="dot" data-step="2"></span>
+      <span class="dot" data-step="3"></span>
+      <span class="dot" data-step="4"></span>
+    </div>
+
+    <div class="wizard-step current" data-step="1">
+      <div class="eyebrow">step 1 of 4</div>
+      <h2>Who's this for? 💗</h2>
+      <p>Enter their name and date of birth to build the surprise.</p>
+      <div class="setup-field">
+        <label for="inputName">Their name</label>
+        <input type="text" id="inputName" placeholder="e.g. Priya" maxlength="40">
+      </div>
+      <div class="setup-field">
+        <label for="inputDob">Date of birth</label>
+        <input type="date" id="inputDob">
+      </div>
+      <div class="wizard-nav">
+        <button class="wizard-btn primary" id="toStep2">Next →</button>
+      </div>
+      <div class="setup-error" id="error1"></div>
+    </div>
+
+    <div class="wizard-step" data-step="2">
+      <div class="eyebrow">step 2 of 4</div>
+      <h2>What's your bond? 🤝</h2>
+      <p>This shapes the tone of the letter and birthday wish.</p>
+      <div class="setup-field">
+        <div class="relation-grid" id="relationGrid">
+          <button type="button" class="relation-pill" data-rel="partner">💗 Partner</button>
+          <button type="button" class="relation-pill" data-rel="bestfriend">🤝 Best Friend</button>
+          <button type="button" class="relation-pill" data-rel="family">🏡 Family</button>
+          <button type="button" class="relation-pill" data-rel="crush">🙈 Crush</button>
+          <button type="button" class="relation-pill" data-rel="colleague">🎉 Friend</button>
+        </div>
+      </div>
+      <div class="setup-field">
+        <label for="inputTogetherSince">Together / friends since (optional)</label>
+        <input type="date" id="inputTogetherSince">
+        <div class="setup-hint">Adds a small "X days together" counter to the page.</div>
+      </div>
+      <div class="setup-field">
+        <label>Page Theme 🎨</label>
+        <div class="relation-grid" id="themeGrid">
+          <button type="button" class="theme-pill active" data-theme-val="sakura">🌸 Sakura Light</button>
+          <button type="button" class="theme-pill" data-theme-val="sakura-dark">🌌 Sakura Dark</button>
+          <button type="button" class="theme-pill" data-theme-val="gold">👑 Gold Luxury</button>
+          <button type="button" class="theme-pill" data-theme-val="ocean">🌊 Ocean Breeze</button>
+          <button type="button" class="theme-pill" data-theme-val="cyberpunk">⚡ Cyberpunk Neon</button>
+        </div>
+      </div>
+      <div class="wizard-nav">
+        <button class="wizard-btn ghost" id="toStep1">← Back</button>
+        <button class="wizard-btn primary" id="toStep3">Next →</button>
+      </div>
+      <div class="setup-error" id="error2"></div>
+    </div>
+
+    <div class="wizard-step" data-step="3">
+      <div class="eyebrow">step 3 of 4</div>
+      <h2>Make it personal ✨</h2>
+      <p>All optional — but photos and music make it unforgettable.</p>
+      <div class="setup-field">
+        <label for="inputPhoto">Their photo</label>
+        <input type="file" id="inputPhoto" accept="image/*">
+        <input type="text" id="inputPhotoUrl" placeholder="Or paste online image URL (e.g. imgur)" style="margin-top: 6px; font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; width: 100%; background: var(--bg); color: var(--text);">
+      </div>
+      <div class="setup-field">
+        <label for="inputMemoryPhotos">Memory timeline photos (up to 5)</label>
+        <input type="file" id="inputMemoryPhotos" accept="image/*" multiple>
+        <input type="text" id="inputMemoryPhotosUrls" placeholder="Or online image URLs, comma separated" style="margin-top: 6px; font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; width: 100%; background: var(--bg); color: var(--text);">
+        <div class="setup-hint">Selected in order, they'll fill the memory cards below.</div>
+      </div>
+      <div class="setup-field">
+        <label for="inputMusic">Background music</label>
+        <input type="file" id="inputMusic" accept="audio/*">
+        <input type="text" id="inputMusicUrl" placeholder="Or paste online audio URL" style="margin-top: 6px; font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; width: 100%; background: var(--bg); color: var(--text);">
+      </div>
+      <div class="wizard-nav">
+        <button class="wizard-btn ghost" id="toStep2b">← Back</button>
+        <button class="wizard-btn primary" id="toStep4">Next →</button>
+      </div>
+      <div class="setup-error" id="error3"></div>
+    </div>
+
+    <div class="wizard-step" data-step="4">
+      <div class="eyebrow">step 4 of 4</div>
+      <h2>The finishing touches 📝</h2>
+      <p>Edit the memory captions, or leave the suggestions as they are.</p>
+      <div class="memory-edit-list" id="memoryEditList"></div>
+      <div class="setup-field">
+        <label for="guestWishes">Wishes from others (optional)</label>
+        <textarea id="guestWishes" rows="3" placeholder="One wish per line, e.g.&#10;Happy Birthday from all of us! — Team&#10;Wishing you the best year yet! — Amma"></textarea>
+        <div class="setup-hint">Each line becomes its own wish card.</div>
+      </div>
+      <div class="setup-field">
+        <label for="scratchGiftText">Scratch Card Gift Voucher (optional)</label>
+        <input type="text" id="scratchGiftText" placeholder="e.g. A movie night & dinner date! 🍿" style="padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; width: 100%; background: var(--bg); color: var(--text); font-size: 0.9rem;">
+        <div class="setup-hint">Leaves a scratch card page lock for them to swipe & reveal!</div>
+      </div>
+      <div class="setup-field">
+        <label style="display:flex; align-items:center; cursor:pointer;">
+          <input type="checkbox" id="enableQuiz" style="margin-right: 6px; transform: scale(1.1);"> Enable Trivia Quiz lock? 🧠
+        </label>
+        <div id="quizFields" style="display:none; margin-top: 10px; border-left: 2px solid var(--primary); padding-left: 10px;">
+          <label style="font-size: 11px; margin-bottom: 4px;">Quiz Question</label>
+          <input type="text" id="quizQuestion" placeholder="e.g. What is my favorite food?" style="margin-bottom: 8px; font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; width: 100%; background: var(--bg); color: var(--text);">
+          <label style="font-size: 11px; margin-bottom: 4px;">Correct Answer</label>
+          <input type="text" id="quizCorrect" placeholder="e.g. Pizza" style="margin-bottom: 8px; font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; width: 100%; background: var(--bg); color: var(--text);">
+          <label style="font-size: 11px; margin-bottom: 4px;">Wrong Option 1</label>
+          <input type="text" id="quizWrong1" placeholder="e.g. Pasta" style="margin-bottom: 8px; font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; width: 100%; background: var(--bg); color: var(--text);">
+          <label style="font-size: 11px; margin-bottom: 4px;">Wrong Option 2</label>
+          <input type="text" id="quizWrong2" placeholder="e.g. Burger" style="margin-bottom: 8px; font-size: 0.85rem; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; width: 100%; background: var(--bg); color: var(--text);">
+        </div>
+      </div>
+      <div class="wizard-nav" style="flex-wrap: wrap;">
+        <button class="wizard-btn ghost" id="toStep3b" style="flex: 1 1 45%;">← Back</button>
+        <button class="wizard-btn primary" id="setupSubmit" style="flex: 1 1 45%;">Create surprise ✨</button>
+        <button class="wizard-btn primary" id="btnShareableLink" style="background: var(--text); color: var(--bg); font-size:0.85rem; flex: 1 1 100%; margin-top:8px;">Copy Shareable Link 🔗</button>
+      </div>
+      <div class="setup-error" id="error4"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<section class="hero">
+  <div class="floaters">
+    <div class="floater" style="width:180px;height:180px;top:10%;left:8%;animation-delay:0s;"></div>
+    <div class="floater" style="width:120px;height:120px;top:60%;left:80%;animation-delay:3s;"></div>
+    <div class="floater" style="width:90px;height:90px;top:75%;left:15%;animation-delay:6s;"></div>
+  </div>
+  <div class="ambient-hearts" id="ambientHearts"></div>
+
+  <div class="photo-frame hero-anim" id="photoFrame" style="display:none;">
+    <div class="photo-ring"></div>
+    <div class="polaroid"><img id="heroPhoto" class="anime-photo" src="" alt=""></div>
+    <span class="photo-sparkle" style="--radius:100px; animation-delay:0s;">✨</span>
+    <span class="photo-sparkle" style="--radius:100px; animation-delay:-1.4s;">⭐</span>
+    <span class="photo-sparkle" style="--radius:100px; animation-delay:-2.8s;">💫</span>
+    <span class="photo-sparkle" style="--radius:100px; animation-delay:-4.2s;">✨</span>
+  </div>
+
+  <div class="eyebrow hero-anim" id="animEyebrow">a little something for</div>
+  <h1 class="hero-anim" id="animH1">Happy Birthday, <span id="heroNameSpan">You</span></h1>
+  <p class="tagline hero-anim" id="animTagline">Every year with you is a story worth telling.</p>
+  <div class="love-meter hero-anim" id="loveMeter" style="display:none;"></div>
+
+  <div class="countdown hero-anim" id="countdown">
+    <div class="unit"><div class="num" id="cd-days">--</div><div class="lbl">days</div></div>
+    <div class="unit"><div class="num" id="cd-hours">--</div><div class="lbl">hours</div></div>
+    <div class="unit"><div class="num" id="cd-mins">--</div><div class="lbl">mins</div></div>
+    <div class="unit"><div class="num" id="cd-secs">--</div><div class="lbl">secs</div></div>
+  </div>
+
+  <div class="scroll-hint hero-anim" id="animHint">scroll down ↓</div>
+</section>
+
+<section id="quizSection" style="display:none; padding: 60px 20px;">
+  <div class="section-head reveal">
+    <div class="eyebrow">Unlock the Surprise</div>
+    <h2>Are you ready? Let's check! 🧠</h2>
+  </div>
+  <div class="quiz-card reveal">
+    <div class="quiz-progress" id="quizProgressText">Question 1 of 1</div>
+    <div class="quiz-q" id="quizQuestionText">Loading Question...</div>
+    <div class="quiz-options" id="quizOptionsContainer">
+      <!-- Options injected by JS -->
+    </div>
+  </div>
+</section>
+
+<section id="cake">
+  <div class="section-head reveal">
+    <div class="eyebrow">make a wish</div>
+    <h2>Blow out the candles</h2>
+  </div>
+  <div class="cake-scene">
+    <div class="cake-balloons" id="cakeBalloons"></div>
+    <div class="cake" id="cakeEl" tabindex="0" role="button" aria-label="Tap or press Enter to blow out the candles">
+      <div class="candles" id="candleRow"></div>
+      <div class="frosting-top"></div>
+      <div class="layer layer-top">
+        <div class="drip"></div><div class="drip"></div><div class="drip"></div><div class="drip"></div><div class="drip"></div>
+      </div>
+      <div class="layer layer-bottom">
+        <span class="sprinkle" style="left:10%;top:30%;"></span>
+        <span class="sprinkle" style="left:30%;top:60%;"></span>
+        <span class="sprinkle" style="left:55%;top:25%;"></span>
+        <span class="sprinkle" style="left:75%;top:55%;"></span>
+        <span class="sprinkle" style="left:90%;top:35%;"></span>
+      </div>
+      <div class="plate"></div>
+    </div>
+    <div class="tap-hint" id="cakeHint">tap the candles to blow them out</div>
+    <button class="blow-btn reveal" id="blowBtn">Blow the candles 🎂💨</button>
+    <div class="wish-box reveal" id="wishBox">
+      <div class="wish-title">✨ Your wish has been sent ✨</div>
+      <div class="wish-text" id="wishText"></div>
+    </div>
+  </div>
+</section>
+
+<section id="memories">
+  <div class="section-head reveal">
+    <div class="eyebrow">a little way back</div>
+    <h2>Moments worth keeping</h2>
+  </div>
+  <div class="timeline-scroll" id="timelineScroll"></div>
+</section>
+
+<section id="wishesWall" style="display:none;">
+  <div class="section-head reveal">
+    <div class="eyebrow">from everyone who loves you</div>
+    <h2>Wishes from friends & family</h2>
+  </div>
+  <div class="wishes-grid" id="wishesGrid"></div>
+</section>
+
+<section id="scratchSection" style="display:none; padding: 60px 20px;">
+  <div class="section-head reveal">
+    <div class="eyebrow">A Special Voucher</div>
+    <h2>Scratch to reveal your gift 🎁</h2>
+  </div>
+  <div class="scratch-card-wrap reveal">
+    <div class="scratch-canvas-container">
+      <div class="scratch-gift-bg">
+        <div class="scratch-gift-title">✨ Birthday Coupon ✨</div>
+        <div class="scratch-gift-text" id="scratchGiftVal">A free dinner date on me! 🍽️</div>
+      </div>
+      <canvas class="scratch-canvas" id="scratchCanvas" width="320" height="200"></canvas>
+    </div>
+    <button id="revealScratchBtn"
+      style="display:none; margin-top:14px; background:none; border:none; color:var(--primary); font-family:var(--font-body); font-size:0.85rem; cursor:pointer; text-decoration:underline; opacity:0.75;"
+      aria-label="Reveal the gift without scratching">
+      Reveal without scratching →
+    </button>
+  </div>
+</section>
+
+<section id="letter">
+  <div class="section-head reveal">
+    <div class="eyebrow">just for you</div>
+    <h2>A letter, sealed with care</h2>
+  </div>
+  <div class="letter-wrap reveal">
+    <div class="envelope" id="envelope" tabindex="0" role="button" aria-label="Open the letter">
+      <div class="envelope-body"></div>
+      <div class="envelope-flap"></div>
+      <div class="envelope-seal">♥</div>
+    </div>
+    <div class="tap-hint">tap the envelope to open</div>
+    <div class="letter-paper" id="letterPaper"></div>
+  </div>
+</section>
+
+<div id="lightboxModal" class="lightbox">
+  <div class="lightbox-content">
+    <button class="lightbox-close" id="lightboxCloseBtn" aria-label="Close lightbox">&times;</button>
+    <div class="lightbox-img-wrap" id="lightboxMediaWrap">
+      <!-- Media content injected dynamically -->
+    </div>
+    <h3 class="lightbox-title" id="lightboxTitle">Memory Title</h3>
+    <p class="lightbox-caption" id="lightboxCaption">Description</p>
+    <button class="lightbox-btn" id="lightboxHeartBtn">Send Love 💖</button>
+  </div>
+</div>
+
+<footer id="footerNote">made with care, for someone worth celebrating.</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
+
+
